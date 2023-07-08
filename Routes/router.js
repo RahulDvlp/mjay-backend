@@ -1,5 +1,5 @@
 const express = require("express");
-const router = new express.Router();
+const router = express.Router();
 const users = require("../models/userSchema");
 const nodemailer = require("nodemailer");
 
@@ -12,27 +12,28 @@ const transporter = nodemailer.createTransport({
 });
 
 router.post("/register", async (req, res) => {
-  const { name, email, phone, message } = req.body;
+  const { name, email, phone, service } = req.body;
 
-  if (!name || !email || !phone) {
+  if (!name || !email || !phone || !service) {
     res.status(401).json({ status: 401, error: "All input required" });
   }
+
   try {
     const preUser = await users.findOne({ email: email });
+
     if (preUser) {
-      const userMessage = preUser.Messagesave(message);
-      console.log(userMessage);
       const mailOptions = {
         from: process.env.EMAIL,
         to: "patothanos6@gmail.com",
         subject: "New Contact Form Submission",
-        text: `You have received a new contact form submission:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`,
+        text: `You have received a new contact form submission:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nService: ${service}`,
       };
+
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.log("error: " + error);
+          console.log("Error sending email:", error);
         } else {
-          console.log("Email sent: " + info.response);
+          console.log("Email sent:", info.response);
           res
             .status(201)
             .json({ status: 201, message: "Email sent successfully" });
@@ -43,7 +44,7 @@ router.post("/register", async (req, res) => {
         name,
         email,
         phone,
-        message,
+        service,
       });
 
       const storeData = await finalUser.save();
@@ -52,23 +53,25 @@ router.post("/register", async (req, res) => {
         from: process.env.EMAIL,
         to: "patothanos6@gmail.com",
         subject: "New Contact Form Submission",
-        text: `You have received a new contact form submission:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`,
+        text: `You have received a new contact form submission:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nService: ${service}`,
       };
+
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.log("error: " + error);
+          console.log("Error sending email:", error);
         } else {
-          console.log("Email sent: " + info.response);
+          console.log("Email sent:", info.response);
           res
             .status(201)
             .json({ status: 201, message: "Email sent successfully" });
         }
       });
+
       res.status(201).json({ status: 201, storeData });
     }
   } catch (error) {
+    console.log("Error occurred:", error);
     res.status(401).json({ status: 401, error: "All input required" });
-    console.log("Error occured", error);
   }
 });
 

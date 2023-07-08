@@ -22,21 +22,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  message: {
+  service: {
     type: String,
   },
 });
-
-userSchema.methods.Messagesave = async function (message) {
-  try {
-    // this.messages = this.messages.concat({ message });
-    this.messages = message;
-    await this.save();
-    return message;
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 const users = new mongoose.model("User", userSchema);
 
