@@ -15,7 +15,7 @@ router.post("/register", async (req, res) => {
   const { name, email, phone, service } = req.body;
 
   if (!name || !email || !phone || !service) {
-    res.status(401).json({ status: 401, error: "All input required" });
+    return res.status(401).json({ status: 401, error: "All input required" });
   }
 
   try {
@@ -29,16 +29,11 @@ router.post("/register", async (req, res) => {
         text: `You have received a new contact form submission:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nService: ${service}`,
       };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log("Error sending email:", error);
-        } else {
-          console.log("Email sent:", info.response);
-          res
-            .status(201)
-            .json({ status: 201, message: "Email sent successfully" });
-        }
-      });
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Email sent:", info.response);
+      return res
+        .status(201)
+        .json({ status: 201, message: "Email sent successfully" });
     } else {
       const finalUser = new users({
         name,
@@ -56,22 +51,14 @@ router.post("/register", async (req, res) => {
         text: `You have received a new contact form submission:\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nService: ${service}`,
       };
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log("Error sending email:", error);
-        } else {
-          console.log("Email sent:", info.response);
-          res
-            .status(201)
-            .json({ status: 201, message: "Email sent successfully" });
-        }
-      });
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Email sent:", info.response);
 
-      res.status(201).json({ status: 201, storeData });
+      return res.status(201).json({ status: 201, storeData });
     }
   } catch (error) {
     console.log("Error occurred:", error);
-    res.status(401).json({ status: 401, error: "All input required" });
+    return res.status(500).json({ status: 500, error: "An error occurred" });
   }
 });
 
